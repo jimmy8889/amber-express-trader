@@ -30,23 +30,25 @@ jobs:
 
       - name: Check pyproject.toml version matches tag
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
           PYPROJECT_VERSION=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-          echo "Tag: $TAG"
+          echo "Version: $VERSION"
           echo "pyproject.toml version: $PYPROJECT_VERSION"
-          if [[ "$TAG" != "$PYPROJECT_VERSION" ]]; then
-            echo "::error::Tag ($TAG) does not match pyproject.toml version ($PYPROJECT_VERSION)"
+          if [[ "$VERSION" != "$PYPROJECT_VERSION" ]]; then
+            echo "::error::Tag version ($VERSION) does not match pyproject.toml version ($PYPROJECT_VERSION)"
             exit 1
           fi
 
       - name: Check manifest.json version matches tag
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${{ github.event.release.tag_name }}"
+          VERSION="${VERSION#v}"
           MANIFEST_VERSION=$(jq -r '.version' custom_components/amber_express/manifest.json)
-          echo "Tag: $TAG"
+          echo "Version: $VERSION"
           echo "manifest.json version: $MANIFEST_VERSION"
-          if [[ "$TAG" != "$MANIFEST_VERSION" ]]; then
-            echo "::error::Tag ($TAG) does not match manifest.json version ($MANIFEST_VERSION)"
+          if [[ "$VERSION" != "$MANIFEST_VERSION" ]]; then
+            echo "::error::Tag version ($VERSION) does not match manifest.json version ($MANIFEST_VERSION)"
             exit 1
           fi
 
