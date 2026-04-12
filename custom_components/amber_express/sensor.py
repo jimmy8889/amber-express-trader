@@ -13,6 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import dt as dt_util
 
 from .const import (
     ATTR_ADVANCED_PRICE,
@@ -193,6 +194,14 @@ def _add_site_sensors(
         # Next poll sensor (disabled by default)
         entities.append(
             AmberNextPollSensor(
+                coordinator=coordinator,
+                entry=entry,
+                subentry=subentry,
+            )
+        )
+
+        entities.append(
+            AmberForecastHorizonSensor(
                 coordinator=coordinator,
                 entry=entry,
                 subentry=subentry,
@@ -700,3 +709,68 @@ class AmberNextPollSensor(AmberBaseSensor):
             "poll_schedule": [round(t, 1) for t in stats.scheduled_polls],
             "poll_count": stats.confirmatory_poll_count + 1,
         }
+
+
+class AmberForecastHorizonSensor(AmberBaseSensor):
+    """Sensor for how many hours of forecast data are available."""
+
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_native_unit_of_measurement = "h"
+    _attr_suggested_display_precision = 0
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _FORECAST_CHANNELS: tuple[str, ...] = (
+        CHANNEL_GENERAL,
+        CHANNEL_FEED_IN,
+        CHANNEL_CONTROLLED_LOAD,
+    )
+
+    def __init__(
+        self,
+        coordinator: AmberDataCoordinator,
+        entry: ConfigEntry,
+        subentry: ConfigSubentry,
+    ) -> None:
+        """Initialize the forecast horizon sensor."""
+        super().__init__(coordinator, entry, subentry, None)
+        self._attr_unique_id = f"{self._site_id}_forecast_horizon"
+        self._attr_translation_key = "forecast_horizon"
+
+    @staticmethod
+    def _parse_datetime(value: object) -> datetime | None:
+        """Parse an ISO timestamp string into a datetime."""
+        if not isinstance(value, str):
+            return None
+        return dt_util.parse_datetime(value)
+
+    def _get_latest_forecast_end(self) -> datetime | None:
+        """Return the latest forecast end_time across all channels."""
+        latest_end: datetime | None = None
+        for channel in self._FORECAST_CHANNELS:
+            for forecast in self.coordinator.get_forecasts(channel):
+                end_time = self._parse_datetime(forecast.get(ATTR_END_TIME))
+                if end_time is None:
+                    continue
+                if latest_end is None or end_time > latest_end:
+                    latest_end = end_time
+        return latest_end
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the forecast horizon in hours."""
+        baseline = self.coordinator.get_forecasts_timestamp()
+        if baseline is None:
+            return None
+
+        latest_end = self._get_latest_forecast_end()
+        if latest_end is None:
+            return None
+
+        return (latest_end - baseline).total_seconds() / 3600
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the raw forecast end timestamp as an attribute."""
+        latest_end = self._get_latest_forecast_end()
+        if latest_end is None:
+            return {}
+        return {"forecast_end": latest_end.isoformat()}
