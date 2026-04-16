@@ -169,7 +169,7 @@ wheels = [
 
 [[package]]
 name = "amber-express"
-version = "1.0.1rc2"
+version = "1.0.1rc3"
 source = { editable = "." }
 dependencies = [
     { name = "amberelectric" },
