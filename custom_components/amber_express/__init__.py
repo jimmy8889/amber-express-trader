@@ -5,7 +5,7 @@ from __future__ import annotations
 import warnings
 
 # amberelectric uses pydantic.v1 which warns on Python 3.14+ (no upstream fix available)
-warnings.filterwarnings("ignore", message="Core Pydantic V1", category=UserWarning, module=r"amberelectric\.")
+warnings.filterwarnings("ignore", message="Core Pydantic V1", category=UserWarning)
 
 from dataclasses import dataclass, field
 import logging
