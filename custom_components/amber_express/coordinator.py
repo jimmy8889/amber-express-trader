@@ -102,7 +102,9 @@ class AmberDataCoordinator(DataUpdateCoordinator[CoordinatorData]):
             hass,
             _LOGGER,
             name=f"{DOMAIN}_{subentry.subentry_id}",
-            update_interval=None,  # Polling is handled by async_track_time_change for clock alignment
+            # Clock-aligned polling is still handled separately; this is a watchdog
+            # retry if the normal polling path stalls or fails repeatedly.
+            update_interval=timedelta(minutes=5),
         )
         self.entry = entry
         self.subentry = subentry
@@ -462,7 +464,7 @@ class AmberDataCoordinator(DataUpdateCoordinator[CoordinatorData]):
         except RateLimitedError:
             return
         except AmberApiError as err:
-            _LOGGER.debug("API error: %s", err)
+            _LOGGER.warning("API error: %s", err)
             return
         finally:
             # Update polling manager with rate limit info regardless of success/failure

@@ -1,5 +1,6 @@
 """Tests for the Amber API client."""
 
+from collections.abc import Callable
 from datetime import UTC, date, datetime, timedelta
 from email.utils import format_datetime
 from http import HTTPStatus
@@ -16,6 +17,7 @@ from amberelectric.models.spike_status import SpikeStatus
 from amberelectric.rest import ApiException
 from homeassistant.core import HomeAssistant
 import pytest
+import urllib3
 
 from custom_components.amber_express.api import (
     AmberApiClient,
@@ -63,6 +65,20 @@ def _make_interval(per_kwh: float = 25.0) -> Interval:
             descriptor=PriceDescriptor.NEUTRAL,
             estimate=True,
         )
+    )
+
+
+async def _run_executor_job(func: Callable[..., object], *args: object) -> object:
+    """Run an executor job inline for tests."""
+    return func(*args)
+
+
+def _make_connection_reset_error() -> urllib3.exceptions.MaxRetryError:
+    """Create a urllib3 error matching a reset connection."""
+    return urllib3.exceptions.MaxRetryError(
+        urllib3.connectionpool.HTTPConnectionPool("api.amber.com.au"),
+        "/v1/sites/test_site/prices/current",
+        urllib3.exceptions.ProtocolError("connection broken", ConnectionResetError(104, "Connection reset")),
     )
 
 
@@ -127,6 +143,23 @@ class TestAmberApiClient:
 
             assert result == []
 
+    async def test_fetch_sites_passes_request_timeout(self, api_client: AmberApiClient) -> None:
+        """Test site fetch sets a request timeout."""
+        mock_response = MagicMock()
+        mock_response.data = []
+        mock_response.headers = _make_rate_limit_headers()
+        mock_get_sites = MagicMock(return_value=mock_response)
+        api_client._api.get_sites_with_http_info = mock_get_sites
+
+        with patch.object(
+            api_client._hass,
+            "async_add_executor_job",
+            new=AsyncMock(side_effect=_run_executor_job),
+        ):
+            await api_client.fetch_sites()
+
+        mock_get_sites.assert_called_once_with(_request_timeout=(10, 30))
+
     async def test_fetch_sites_api_exception(self, api_client: AmberApiClient) -> None:
         """Test site fetch with API exception raises AmberApiError."""
         with patch.object(
@@ -139,6 +172,31 @@ class TestAmberApiClient:
 
             assert exc_info.value.status == 500
             assert api_client.last_status == 500
+
+    @pytest.mark.parametrize(
+        "network_error",
+        [
+            _make_connection_reset_error(),
+            OSError("Network is unreachable"),
+            TimeoutError("Request timed out"),
+        ],
+    )
+    async def test_fetch_sites_network_error(
+        self,
+        api_client: AmberApiClient,
+        network_error: Exception,
+    ) -> None:
+        """Test site fetch wraps network exceptions as AmberApiError."""
+        with patch.object(
+            api_client._hass,
+            "async_add_executor_job",
+            new=AsyncMock(side_effect=network_error),
+        ):
+            with pytest.raises(AmberApiError) as exc_info:
+                await api_client.fetch_sites()
+
+            assert exc_info.value.status == 0
+            assert api_client.last_status == 0
 
     async def test_fetch_sites_rate_limited(
         self, api_client: AmberApiClient, rate_limiter: ExponentialBackoffRateLimiter
@@ -197,6 +255,30 @@ class TestAmberApiClient:
 
             assert len(result) == 10
 
+    async def test_fetch_current_prices_passes_request_timeout(self, api_client: AmberApiClient) -> None:
+        """Test price fetch sets a request timeout."""
+        interval = _make_interval()
+        mock_response = MagicMock()
+        mock_response.data = [interval]
+        mock_response.headers = _make_rate_limit_headers()
+        mock_get_prices = MagicMock(return_value=mock_response)
+        api_client._api.get_current_prices_with_http_info = mock_get_prices
+
+        with patch.object(
+            api_client._hass,
+            "async_add_executor_job",
+            new=AsyncMock(side_effect=_run_executor_job),
+        ):
+            await api_client.fetch_current_prices("test_site", next_intervals=9, resolution=30)
+
+        mock_get_prices.assert_called_once_with(
+            "test_site",
+            next=9,
+            previous=0,
+            resolution=30,
+            _request_timeout=(10, 30),
+        )
+
     async def test_fetch_current_prices_rate_limited_backoff(
         self, api_client: AmberApiClient, rate_limiter: ExponentialBackoffRateLimiter
     ) -> None:
@@ -219,6 +301,31 @@ class TestAmberApiClient:
 
             assert exc_info.value.status == 503
             assert api_client.last_status == 503
+
+    @pytest.mark.parametrize(
+        "network_error",
+        [
+            _make_connection_reset_error(),
+            OSError("Network is unreachable"),
+            TimeoutError("Request timed out"),
+        ],
+    )
+    async def test_fetch_current_prices_network_error(
+        self,
+        api_client: AmberApiClient,
+        network_error: Exception,
+    ) -> None:
+        """Test price fetch wraps network exceptions as AmberApiError."""
+        with patch.object(
+            api_client._hass,
+            "async_add_executor_job",
+            new=AsyncMock(side_effect=network_error),
+        ):
+            with pytest.raises(AmberApiError) as exc_info:
+                await api_client.fetch_current_prices("test_site")
+
+            assert exc_info.value.status == 0
+            assert api_client.last_status == 0
 
     async def test_fetch_current_prices_rate_limit_triggers_backoff(
         self, api_client: AmberApiClient, rate_limiter: ExponentialBackoffRateLimiter

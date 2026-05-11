@@ -16,6 +16,7 @@ from amberelectric.models import Site
 from amberelectric.models.interval import Interval
 from amberelectric.rest import ApiException
 import http_sf
+import urllib3
 
 from custom_components.amber_express.types import RateLimitInfo
 
@@ -28,6 +29,10 @@ _LOGGER = logging.getLogger(__name__)
 
 # HTTP status codes
 HTTP_TOO_MANY_REQUESTS = 429
+HTTP_NETWORK_ERROR = 0
+
+# Request timeout as (connect timeout, read timeout), passed to urllib3 by the SDK
+_REQUEST_TIMEOUT = (10, 30)
 
 # Maximum jitter in reset_at timestamp to ignore (seconds)
 RESET_AT_JITTER_TOLERANCE = 5
@@ -133,7 +138,9 @@ class AmberApiClient:
 
         """
         try:
-            response = await self._hass.async_add_executor_job(self._api.get_sites_with_http_info)
+            response = await self._hass.async_add_executor_job(
+                lambda: self._api.get_sites_with_http_info(_request_timeout=_REQUEST_TIMEOUT)
+            )
             # API always returns rate limit headers
             headers = response.headers or {}
             self._rate_limit_info = self._extract_rate_limit_info(headers, self._rate_limit_info)
@@ -160,6 +167,10 @@ class AmberApiClient:
 
             msg = f"Failed to fetch sites: {err}"
             raise AmberApiError(msg, status) from err
+        except (urllib3.exceptions.HTTPError, OSError) as err:
+            self._last_api_status = HTTP_NETWORK_ERROR
+            msg = f"Network error talking to Amber: {type(err).__name__}: {err}"
+            raise AmberApiError(msg, HTTP_NETWORK_ERROR) from err
 
     async def fetch_current_prices(
         self,
@@ -200,6 +211,7 @@ class AmberApiClient:
                     next=next_intervals,
                     previous=0,
                     resolution=resolution,
+                    _request_timeout=_REQUEST_TIMEOUT,
                 )
             )
             # API always returns rate limit headers
@@ -232,6 +244,10 @@ class AmberApiClient:
 
             msg = f"Amber API error ({status}): {err.reason}"
             raise AmberApiError(msg, status) from err
+        except (urllib3.exceptions.HTTPError, OSError) as err:
+            self._last_api_status = HTTP_NETWORK_ERROR
+            msg = f"Network error talking to Amber: {type(err).__name__}: {err}"
+            raise AmberApiError(msg, HTTP_NETWORK_ERROR) from err
 
     def _extract_reset_at_from_429(self, headers: dict[str, str] | None) -> datetime | None:
         """Extract reset time from 429 response headers, with fallback.
