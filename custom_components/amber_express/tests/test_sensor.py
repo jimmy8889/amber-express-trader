@@ -128,6 +128,50 @@ class TestAmberPriceSensor:
 
         assert sensor.native_value == -0.10
 
+    def test_price_sensor_native_value_keeps_full_precision(
+        self,
+        mock_config_entry: MockConfigEntry,
+        mock_subentry: MagicMock,
+    ) -> None:
+        """The current price is reported at full precision; display precision handles rounding."""
+        coordinator = MagicMock()
+        coordinator.data_source = "polling"
+        coordinator.get_channel_data = MagicMock(return_value={ATTR_PER_KWH: 0.123456})
+        coordinator.get_forecasts = MagicMock(return_value=[])
+
+        sensor = AmberPriceSensor(
+            coordinator=coordinator,
+            entry=mock_config_entry,
+            subentry=mock_subentry,
+            channel=CHANNEL_GENERAL,
+        )
+
+        assert sensor.native_value == 0.123456
+
+    def test_price_sensor_forecast_value_is_rounded(
+        self,
+        mock_config_entry: MockConfigEntry,
+        mock_subentry: MagicMock,
+    ) -> None:
+        """The recorded simple forecast values are rounded to four decimal places."""
+        coordinator = MagicMock()
+        coordinator.data_source = "polling"
+        coordinator.get_channel_data = MagicMock(
+            return_value={ATTR_PER_KWH: 0.25, ATTR_START_TIME: "2024-01-01T10:00:00+00:00"}
+        )
+        coordinator.get_forecasts = MagicMock(
+            return_value=[{ATTR_START_TIME: "2024-01-01T10:05:00+00:00", ATTR_PER_KWH: 0.123456}]
+        )
+
+        sensor = AmberPriceSensor(
+            coordinator=coordinator,
+            entry=mock_config_entry,
+            subentry=mock_subentry,
+            channel=CHANNEL_GENERAL,
+        )
+
+        assert sensor.extra_state_attributes["forecast"][0]["value"] == 0.1235
+
     def test_price_sensor_no_data(
         self,
         mock_config_entry: MockConfigEntry,
@@ -428,6 +472,29 @@ class TestAmberPriceSensor:
         attrs = sensor.extra_state_attributes
         assert attrs["forecast"][0]["value"] == 0.31
 
+    def test_price_sensor_demand_window_surcharge_strips_float_artifacts(
+        self,
+        mock_config_entry: MockConfigEntry,
+    ) -> None:
+        """Adding the demand window surcharge stays at the genuine price precision."""
+        subentry = create_mock_subentry()
+        subentry.data[CONF_DEMAND_WINDOW_PRICE] = 0.2
+        mock_config_entry.subentries = {subentry.subentry_id: subentry}
+
+        coordinator = MagicMock()
+        coordinator.data_source = "polling"
+        coordinator.get_channel_data = MagicMock(return_value={ATTR_PER_KWH: 0.1, ATTR_DEMAND_WINDOW: True})
+        coordinator.get_forecasts = MagicMock(return_value=[])
+
+        sensor = AmberPriceSensor(
+            coordinator=coordinator,
+            entry=mock_config_entry,
+            subentry=subentry,
+            channel=CHANNEL_GENERAL,
+        )
+
+        assert sensor.native_value == 0.3
+
 
 class TestAmberPriceSensorDetailedForecast:
     """Tests for the unrecorded detailedForecast attribute on AmberPriceSensor."""
@@ -466,6 +533,35 @@ class TestAmberPriceSensorDetailedForecast:
         )
 
         assert sensor.extra_state_attributes[ATTR_DETAILED_FORECAST] == [forecast_entry]
+
+    def test_detailed_forecast_prices_are_not_rounded(
+        self,
+        mock_config_entry: MockConfigEntry,
+        mock_subentry: MagicMock,
+    ) -> None:
+        """The detailedForecast attribute keeps full price precision while the simple forecast rounds."""
+        forecast_entry = {
+            ATTR_START_TIME: "2024-01-01T10:05:00+00:00",
+            ATTR_PER_KWH: 0.123456,
+            ATTR_ADVANCED_PRICE: {"low": 0.111111, "predicted": 0.123456, "high": 0.135791},
+        }
+        coordinator = MagicMock()
+        coordinator.data_source = "polling"
+        coordinator.get_channel_data = MagicMock(
+            return_value={ATTR_PER_KWH: 0.25, ATTR_START_TIME: "2024-01-01T10:00:00+00:00"}
+        )
+        coordinator.get_forecasts = MagicMock(return_value=[forecast_entry])
+
+        sensor = AmberPriceSensor(
+            coordinator=coordinator,
+            entry=mock_config_entry,
+            subentry=mock_subentry,
+            channel=CHANNEL_GENERAL,
+        )
+
+        detailed = sensor.extra_state_attributes[ATTR_DETAILED_FORECAST][0]
+        assert detailed[ATTR_PER_KWH] == 0.123456
+        assert detailed[ATTR_ADVANCED_PRICE] == {"low": 0.111111, "predicted": 0.123456, "high": 0.135791}
 
     def test_detailed_forecast_feed_in_negates_prices(
         self,
