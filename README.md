@@ -79,25 +79,51 @@ Amber Express supports the following per-site options:
 
 Adding a demand window price helps optimizers such as [HAEO](https://haeo.io/) avoid importing during the demand window.
 
+## Pricing Modes
+
+There are two pricing modes available that Amber provide, AEMO and Advanced Price Predicted (APP). For the current interval, both pricing modes report the same price as this the real confirmed cost. However, the pricing modes will changes the **forecast** method used for upcoming future intervals.
+
+### AEMO
+
+- This matches the price forecasts shown in the official Amber app
+- Forecasts upcoming prices from AEMO's wholesale prices
+- These forecasts are often aggressively wrong, predicting price spikes that will last for hours
+
+### Advanced Price (default)
+
+- Amber's own prediction of upcoming prices, built to be more realistic than AEMO
+- Despite the Amber app displaying AEMO prices, Amber's SmartShift uses this forecast instead
+- Strongly recommended for optimizers such as [HAEO](https://haeo.io/), and the default mode in Amber Express
+
 ## HAEO Integration
 
 The forecast sensors are designed to work seamlessly with [HAEO](https://haeo.io/). Simply add the forecast sensors to your HAEO Grid element configuration:
 
 ```yaml
 # Example: Use in HAEO
-Import Price: sensor.amber_express_general_forecast
-Export Price: sensor.amber_express_feed_in_forecast
+Import Price: sensor.amber_express_home_general_price
+Export Price: sensor.amber_express_home_feed_in_price
 ```
 
 ## Smart Polling
 
-Amber Express learns when confirmed prices typically arrive and schedules its polling at the most likely times.
+Each interval opens with an _estimate_ price, then Amber publishes the _confirmed_ price some 10s of seconds later. Smart polling exists to catch that confirmed price as fast as possible without exhausting the API rate limit, so rather than poll on a fixed schedule it learns _when_ confirmed prices tend to arrive and aims to focus the majority of its polling quota around that time.
 
-1. At the start of each 5-minute interval, polls to get the initial estimate price and forecast
-2. Tracks when confirmed prices historically arrive and times subsequent polls accordingly
-3. Stops polling once confirmed price is received
+1. **Observe**: Each time a confirmed price arrives, the integration records the window between the last poll that still saw an estimate and the first poll that saw the confirmed value. The most recent 100 of these observations are kept and persisted across restarts.
+2. **Learn**: Those observations are combined into a probability distribution of when confirmation happens across the interval.
+3. **Aim**: Given a budget of how many polls it can afford, it concentrates them around the times confirmation is most likely rather than spreading them evenly. As time passes with no confirmed price, it re-targets the remaining likely window.
+4. **Stop**: The moment a confirmed price arrives, polling pauses until the next interval.
 
-This adaptive approach typically delivers confirmed prices within seconds of publication.
+The poll budget is derived from the API rate limit and recalculated after every response, so the schedule tightens or loosens as quota allows. Polls are also reserved for the interval boundary and for the moment the rate limit resets. In practice this adaptive approach delivers confirmed prices within seconds of publication.
+
+There are two main diagnostic sensors that shows the current state of polling:
+
+1. **Confirmation Delay**: This sensor represents how long it took to receive a confirmed price from the start of an interval. This includes the delay Amber itself has in getting a confirmed price to then pass on.
+2. **Confirmation Lag**: This sensor represents the maximum amount of added delay the act of polling may have caused. It is the time between the last unconfirmed poll and the confirmed poll. The goal is to get this as close to zero as possible with smarter polling.
+
+Here is a video of the algorithm adjusting its polling schedule (red dots) as confirmed prices arrived.
+
+https://github.com/user-attachments/assets/e42414fd-526f-456c-a503-3e6751baedf7
 
 ## Forecasting
 
@@ -106,6 +132,58 @@ Amber Express includes forecast attributes for both import and feed-in channels.
 - Forecast length is configurable using the **Forecast intervals** option
 - Forecast sensors update with each polling cycle and can be consumed directly by automations
 - Forecast entities are designed to integrate easily with optimizers such as [HAEO](https://haeo.io/)
+
+## Entity Attributes
+
+Each entity exposes additional state attributes alongside its main value. This is where pricing forecasts are available.
+
+### Price sensors (`general`, `feed_in`, `controlled_load`)
+
+| Attribute            | Type     | Description                                                        |
+| -------------------- | -------- | ------------------------------------------------------------------ |
+| `start_time`         | datetime | Current interval start in local time (minute precision)            |
+| `end_time`           | datetime | Current interval end in local time (minute precision)              |
+| `estimate`           | boolean  | Whether the current price is an estimate (not yet confirmed)       |
+| `descriptor`         | string   | Amber's price descriptor (e.g. `low`, `high`, `spike`)             |
+| `data_source`        | string   | Where the price came from, either `polling` or `websocket`         |
+| `interpolation_mode` | string   | Always `previous`; describes how to interpolate the forecast curve |
+| `forecast`           | list     | Simple `{ time, value }` points for automations and optimizers     |
+| `detailedForecast`   | list     | Full raw forecast intervals (ignored by HA recorder)               |
+
+### `site` sensor (diagnostic)
+
+| Attribute         | Type    | Description                                          |
+| ----------------- | ------- | ---------------------------------------------------- |
+| `id`              | string  | Amber site identifier                                |
+| `nmi`             | string  | National Metering Identifier                         |
+| `network`         | string  | Distribution network name                            |
+| `status`          | string  | Site status (e.g. `active`)                          |
+| `interval_length` | integer | Pricing interval length in minutes                   |
+| `channels`        | list    | `{ identifier, type, tariff }` per available channel |
+
+### `api_status` sensor (diagnostic)
+
+| Attribute                   | Type     | Description                                    |
+| --------------------------- | -------- | ---------------------------------------------- |
+| `status_code`               | integer  | Most recent HTTP status code from the API      |
+| `rate_limit_quota`          | integer  | Maximum requests allowed in the window         |
+| `rate_limit_remaining`      | integer  | Requests remaining in the current window       |
+| `rate_limit_reset_at`       | datetime | When the rate-limit quota resets               |
+| `rate_limit_window_seconds` | integer  | Rate-limit window size in seconds              |
+| `rate_limit_policy`         | string   | Raw rate-limit policy string (e.g. `50;w=300`) |
+
+### `next_poll` sensor (diagnostic)
+
+| Attribute       | Type    | Description                                        |
+| --------------- | ------- | -------------------------------------------------- |
+| `poll_schedule` | list    | Scheduled poll offsets (seconds into the interval) |
+| `poll_count`    | integer | Total polls planned for this interval              |
+
+### `forecast_horizon` sensor (diagnostic)
+
+| Attribute      | Type     | Description                                  |
+| -------------- | -------- | -------------------------------------------- |
+| `forecast_end` | datetime | Timestamp of the furthest available forecast |
 
 ## WebSocket Support
 
