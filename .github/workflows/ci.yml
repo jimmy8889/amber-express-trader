@@ -226,6 +226,9 @@ jobs:
     name: HACS
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v7
+
       - name: Run HACS validation
         uses: hacs/action@main
         with:

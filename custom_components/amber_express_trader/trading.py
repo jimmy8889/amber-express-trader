@@ -197,7 +197,8 @@ def _best_future_export_price(forecast: Iterable[ChannelData], pricing_mode: str
     return max(prices) if prices else None
 
 
-def _interval_duration_hours(interval: ChannelData) -> float:
+def interval_duration_hours(interval: ChannelData) -> float:
+    """Return an interval duration in hours, falling back to a 5-minute Amber interval."""
     duration = interval.get(ATTR_DURATION)
     if isinstance(duration, int | float) and duration > 0:
         return float(duration) / 60
@@ -398,7 +399,7 @@ def build_grid_buy_plan(
         price = extract_price(interval, pricing_mode)
         if price is None or price > charge_ceiling:
             continue
-        duration_hours = _interval_duration_hours(interval)
+        duration_hours = interval_duration_hours(interval)
         candidates.append(
             {
                 "start_time": interval.get(ATTR_START_TIME),
@@ -491,27 +492,33 @@ def target_battery_power_kw(
     *,
     site_context: SiteContext | None,
     grid_buy_plan_rate_kw: float = 0.0,
+    interval_duration_hours: float | None = None,
 ) -> tuple[float, dict[str, Any]]:
     """Return target battery power in kW, positive charge and negative discharge."""
     max_charge_kw = site_context.inverter_max_charge_kw if site_context else None
     max_discharge_kw = site_context.inverter_max_discharge_kw if site_context else None
     export_limit_kw = site_context.normal_export_limit_kw if site_context else None
     usable_above_reserve = site_context.usable_energy_above_reserve_kwh if site_context else None
+    battery_room_kwh = site_context.battery_room_kwh if site_context else None
+    duration_hours = (
+        interval_duration_hours if interval_duration_hours is not None and interval_duration_hours > 0 else 1.0
+    )
     attrs = {
         "action": recommendation.action,
         "reason": recommendation.reason,
         "confidence": recommendation.confidence,
         "constrained_by": list(recommendation.constrained_by),
+        "target_interval_hours": duration_hours,
     }
 
     if recommendation.action == "charge_from_grid":
-        if grid_buy_plan_rate_kw > 0:
-            rate = grid_buy_plan_rate_kw
-        elif max_charge_kw is not None:
-            rate = max_charge_kw
-        else:
-            rate = 0.0
-        attrs["target_direction"] = "charge"
+        rate = grid_buy_plan_rate_kw if grid_buy_plan_rate_kw > 0 else 0.0
+        if max_charge_kw is not None:
+            rate = min(rate, max_charge_kw)
+        if battery_room_kwh is not None:
+            rate = min(rate, battery_room_kwh / duration_hours)
+        attrs["target_direction"] = "charge" if rate > 0 else "hold"
+        attrs["source"] = "grid_buy_plan" if rate > 0 else "no_active_grid_buy_plan_interval"
         attrs["grid_charge_efficiency"] = GRID_CHARGE_EFFICIENCY
         return max(0.0, rate), attrs
 
@@ -521,6 +528,8 @@ def target_battery_power_kw(
             solar_surplus_kw = 0.0
         if max_charge_kw is not None:
             solar_surplus_kw = min(solar_surplus_kw, max_charge_kw)
+        if battery_room_kwh is not None:
+            solar_surplus_kw = min(solar_surplus_kw, battery_room_kwh / duration_hours)
         attrs["target_direction"] = "charge"
         attrs["source"] = "solar_surplus"
         attrs["pv_discharge_efficiency"] = PV_DISCHARGE_EFFICIENCY
@@ -530,10 +539,19 @@ def target_battery_power_kw(
         rate_limit = max_discharge_kw
         if recommendation.action == "export_to_grid" and export_limit_kw is not None:
             rate_limit = min(rate_limit, export_limit_kw) if rate_limit is not None else export_limit_kw
+        if recommendation.action == "discharge_to_home":
+            home_load_kw = site_context.house_load_kw if site_context else None
+            solar_power_kw = site_context.solar_power_kw if site_context else None
+            grid_power_kw = site_context.grid_power_kw if site_context else None
+            if home_load_kw is not None and solar_power_kw is not None:
+                net_home_load_kw = max(0.0, home_load_kw - solar_power_kw)
+                rate_limit = min(rate_limit, net_home_load_kw) if rate_limit is not None else net_home_load_kw
+            elif grid_power_kw is not None and grid_power_kw > 0:
+                rate_limit = min(rate_limit, grid_power_kw) if rate_limit is not None else grid_power_kw
         if rate_limit is None:
             rate_limit = 0.0
         if usable_above_reserve is not None:
-            rate_limit = min(rate_limit, usable_above_reserve * PV_DISCHARGE_EFFICIENCY)
+            rate_limit = min(rate_limit, (usable_above_reserve * PV_DISCHARGE_EFFICIENCY) / duration_hours)
         attrs["target_direction"] = "discharge"
         attrs["pv_discharge_efficiency"] = PV_DISCHARGE_EFFICIENCY
         return -max(0.0, rate_limit), attrs

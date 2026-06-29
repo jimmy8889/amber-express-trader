@@ -63,6 +63,7 @@ from .trading import (
     find_best_charge_window,
     find_best_export_window,
     find_next_threshold_interval,
+    interval_duration_hours,
     is_effectively_zero,
     is_export_profitable,
     is_grid_charge_profitable,
@@ -765,6 +766,7 @@ class AmberBatteryPowerTargetSensor(AmberBaseSensor):
             recommendation,
             site_context=context,
             grid_buy_plan_rate_kw=current_plan_rate(plan, current_data.get(ATTR_START_TIME)),
+            interval_duration_hours=interval_duration_hours(current_data),
         )
         return rate
 
@@ -778,6 +780,7 @@ class AmberBatteryPowerTargetSensor(AmberBaseSensor):
             recommendation,
             site_context=context,
             grid_buy_plan_rate_kw=current_plan_rate(plan, current_data.get(ATTR_START_TIME)),
+            interval_duration_hours=interval_duration_hours(current_data),
         )
         assumed_grid_charge_today = assumed_grid_charge_energy_today(plan)
         attrs.update(

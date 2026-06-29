@@ -222,7 +222,54 @@ def test_target_battery_power_uses_grid_buy_plan_rate() -> None:
 
     assert rate == 2.5
     assert attrs["target_direction"] == "charge"
+    assert attrs["source"] == "grid_buy_plan"
     assert attrs["grid_charge_efficiency"] == GRID_CHARGE_EFFICIENCY
+
+
+def test_target_battery_power_does_not_grid_charge_without_active_plan_interval() -> None:
+    """Grid charging requires an active planned interval."""
+    recommendation = recommend_trading(
+        import_price=0.01,
+        feed_in_price=-0.02,
+        zero_deadband=0.001,
+        export_floor=0.11,
+        charge_ceiling=0.03,
+        spike_threshold=0.50,
+        site_context=SiteContext(inverter_max_charge_kw=5.0),
+    )
+
+    rate, attrs = target_battery_power_kw(
+        recommendation,
+        site_context=SiteContext(inverter_max_charge_kw=5.0),
+        grid_buy_plan_rate_kw=0.0,
+    )
+
+    assert rate == 0.0
+    assert attrs["target_direction"] == "hold"
+    assert attrs["source"] == "no_active_grid_buy_plan_interval"
+
+
+def test_target_battery_power_caps_charge_by_remaining_room_for_interval() -> None:
+    """Charge target does not exceed remaining battery room in the current interval."""
+    recommendation = recommend_trading(
+        import_price=0.01,
+        feed_in_price=-0.02,
+        zero_deadband=0.001,
+        export_floor=0.11,
+        charge_ceiling=0.03,
+        spike_threshold=0.50,
+        site_context=SiteContext(battery_soc_pct=98, battery_usable_kwh=10, inverter_max_charge_kw=5.0),
+    )
+
+    rate, attrs = target_battery_power_kw(
+        recommendation,
+        site_context=SiteContext(battery_soc_pct=98, battery_usable_kwh=10, inverter_max_charge_kw=5.0),
+        grid_buy_plan_rate_kw=5.0,
+        interval_duration_hours=5 / 60,
+    )
+
+    assert round(rate, 3) == 2.4
+    assert attrs["target_interval_hours"] == 5 / 60
 
 
 def test_target_battery_power_charges_from_solar_surplus() -> None:
@@ -245,6 +292,74 @@ def test_target_battery_power_charges_from_solar_surplus() -> None:
     assert rate == 3.0
     assert attrs["source"] == "solar_surplus"
     assert attrs["pv_discharge_efficiency"] == PV_DISCHARGE_EFFICIENCY
+
+
+def test_target_battery_power_caps_discharge_by_interval_energy() -> None:
+    """Discharge target converts available energy into an interval-aware power cap."""
+    recommendation = recommend_trading(
+        import_price=0.60,
+        feed_in_price=-0.02,
+        zero_deadband=0.001,
+        export_floor=0.11,
+        charge_ceiling=0.03,
+        spike_threshold=0.50,
+        site_context=SiteContext(
+            battery_soc_pct=30,
+            battery_usable_kwh=10,
+            battery_min_reserve_kwh=2,
+            inverter_max_discharge_kw=20.0,
+        ),
+    )
+
+    rate, attrs = target_battery_power_kw(
+        recommendation,
+        site_context=SiteContext(
+            battery_soc_pct=30,
+            battery_usable_kwh=10,
+            battery_min_reserve_kwh=2,
+            inverter_max_discharge_kw=20.0,
+        ),
+        interval_duration_hours=5 / 60,
+    )
+
+    assert round(rate, 3) == -10.2
+    assert attrs["target_interval_hours"] == 5 / 60
+
+
+def test_target_battery_power_discharge_to_home_targets_net_load() -> None:
+    """Discharge-to-home target avoids exporting by following net household load."""
+    recommendation = recommend_trading(
+        import_price=0.60,
+        feed_in_price=-0.02,
+        zero_deadband=0.001,
+        export_floor=0.11,
+        charge_ceiling=0.03,
+        spike_threshold=0.50,
+        site_context=SiteContext(
+            battery_soc_pct=80,
+            battery_usable_kwh=10,
+            battery_min_reserve_kwh=2,
+            inverter_max_discharge_kw=10.0,
+            solar_power_kw=2.0,
+            house_load_kw=5.0,
+        ),
+    )
+
+    rate, attrs = target_battery_power_kw(
+        recommendation,
+        site_context=SiteContext(
+            battery_soc_pct=80,
+            battery_usable_kwh=10,
+            battery_min_reserve_kwh=2,
+            inverter_max_discharge_kw=10.0,
+            solar_power_kw=2.0,
+            house_load_kw=5.0,
+        ),
+        interval_duration_hours=5 / 60,
+    )
+
+    assert rate == -3.0
+    assert attrs["target_direction"] == "discharge"
 
 
 def test_assumed_grid_charge_energy_today_uses_completed_plan_intervals() -> None:
