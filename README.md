@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/hass-energy/amber_express_trader/raw/main/images/logo.png" alt="Amber Express Trader" width="500">
+  <img src="https://github.com/jimmy8889/amber-express-trader/raw/main/images/logo.png" alt="Amber Express Trader" width="500">
 </p>
 
 <p align="center">
@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/hass-energy/amber_express_trader/releases"><img src="https://img.shields.io/github/v/release/hass-energy/amber_express_trader?style=flat-square" alt="Release"></a>
-  <a href="https://github.com/hass-energy/amber_express_trader/blob/main/LICENSE"><img src="https://img.shields.io/github/license/hass-energy/amber_express_trader?style=flat-square" alt="License"></a>
+  <a href="https://github.com/jimmy8889/amber-express-trader/releases"><img src="https://img.shields.io/github/v/release/jimmy8889/amber-express-trader?style=flat-square" alt="Release"></a>
+  <a href="https://github.com/jimmy8889/amber-express-trader/blob/main/LICENSE"><img src="https://img.shields.io/github/license/jimmy8889/amber-express-trader?style=flat-square" alt="License"></a>
   <a href="https://github.com/custom-components/hacs"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg?style=flat-square" alt="HACS"></a>
   <a href="https://buymeacoffee.com/haeo.io"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg?style=flat-square" alt="Buy Me A Coffee"></a>
 </p>
@@ -30,15 +30,15 @@ A Home Assistant custom integration for [Amber Electric](https://www.amber.com.a
 
 ## Screenshots
 
-| Sensors                                                                                                                        | Diagnostics                                                                                                                            |
-| ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| <img src="https://github.com/hass-energy/amber_express_trader/raw/main/images/sensors.png" alt="Amber Express Trader sensors" width="317px"> | <img src="https://github.com/hass-energy/amber_express_trader/raw/main/images/diagnostics.png" alt="Amber Express Trader diagnostics" width="317px"> |
+| Sensors                                                                                                                                    | Diagnostics                                                                                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| <img src="https://github.com/jimmy8889/amber-express-trader/raw/main/images/sensors.png" alt="Amber Express Trader sensors" width="317px"> | <img src="https://github.com/jimmy8889/amber-express-trader/raw/main/images/diagnostics.png" alt="Amber Express Trader diagnostics" width="317px"> |
 
 ## Installation
 
 ### HACS (Recommended)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hass-energy&repository=amber_express_trader&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=jimmy8889&repository=amber-express-trader&category=integration)
 
 Or manually:
 
@@ -191,7 +191,7 @@ The integration will (optionally) connect to Amber's WebSocket API for real-time
 
 ## Comparison
 
-| Feature           | Amber Express Trader            | amber2mqtt                | Amber Electric     |
+| Feature           | Amber Express Trader     | amber2mqtt                | Amber Electric     |
 | ----------------- | ------------------------ | ------------------------- | ------------------ |
 | Polling           | Adaptive (learns timing) | Scheduled (you configure) | Fixed 1-minute     |
 | Update Speed      | Fastest                  | Fast                      | Slow               |

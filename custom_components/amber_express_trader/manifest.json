@@ -1,12 +1,12 @@
 {
   "domain": "amber_express_trader",
   "name": "Amber Express Trader",
-  "codeowners": ["@BrendanAnnable"],
+  "codeowners": ["@jimmy8889"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/hass-energy/amber_express_trader",
+  "documentation": "https://github.com/jimmy8889/amber-express-trader",
   "iot_class": "cloud_polling",
-  "issue_tracker": "https://github.com/hass-energy/amber_express_trader/issues",
+  "issue_tracker": "https://github.com/jimmy8889/amber-express-trader/issues",
   "requirements": ["amberelectric>=2.0.12", "http-sf>=1.1.1", "numpy>=2.2.0"],
   "version": "2.0.0"
 }
