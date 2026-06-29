@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/hass-energy/amber-express/raw/main/images/logo.png" alt="Amber Express" width="500">
+  <img src="https://github.com/hass-energy/amber_express_trader/raw/main/images/logo.png" alt="Amber Express Trader" width="500">
 </p>
 
 <p align="center">
@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/hass-energy/amber-express/releases"><img src="https://img.shields.io/github/v/release/hass-energy/amber-express?style=flat-square" alt="Release"></a>
-  <a href="https://github.com/hass-energy/amber-express/blob/main/LICENSE"><img src="https://img.shields.io/github/license/hass-energy/amber-express?style=flat-square" alt="License"></a>
+  <a href="https://github.com/hass-energy/amber_express_trader/releases"><img src="https://img.shields.io/github/v/release/hass-energy/amber_express_trader?style=flat-square" alt="Release"></a>
+  <a href="https://github.com/hass-energy/amber_express_trader/blob/main/LICENSE"><img src="https://img.shields.io/github/license/hass-energy/amber_express_trader?style=flat-square" alt="License"></a>
   <a href="https://github.com/custom-components/hacs"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg?style=flat-square" alt="HACS"></a>
   <a href="https://buymeacoffee.com/haeo.io"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg?style=flat-square" alt="Buy Me A Coffee"></a>
 </p>
@@ -32,13 +32,13 @@ A Home Assistant custom integration for [Amber Electric](https://www.amber.com.a
 
 | Sensors                                                                                                                        | Diagnostics                                                                                                                            |
 | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| <img src="https://github.com/hass-energy/amber-express/raw/main/images/sensors.png" alt="Amber Express sensors" width="317px"> | <img src="https://github.com/hass-energy/amber-express/raw/main/images/diagnostics.png" alt="Amber Express diagnostics" width="317px"> |
+| <img src="https://github.com/hass-energy/amber_express_trader/raw/main/images/sensors.png" alt="Amber Express Trader sensors" width="317px"> | <img src="https://github.com/hass-energy/amber_express_trader/raw/main/images/diagnostics.png" alt="Amber Express Trader diagnostics" width="317px"> |
 
 ## Installation
 
 ### HACS (Recommended)
 
-[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hass-energy&repository=amber-express&category=integration)
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=hass-energy&repository=amber_express_trader&category=integration)
 
 Or manually:
 
@@ -51,21 +51,21 @@ Or manually:
 
 ### Manual Installation
 
-1. Copy the `custom_components/amber_express` folder to your Home Assistant's `custom_components` directory
+1. Copy the `custom_components/amber_express_trader` folder to your Home Assistant's `custom_components` directory
 2. Restart Home Assistant
 
 ## Configuration
 
 1. Go to **Settings** > **Devices & Services**
 2. Click **Add Integration**
-3. Search for "Amber Express"
+3. Search for "Amber Express Trader"
 4. Enter your Amber API token (get one from [Amber Developer Settings](https://app.amber.com.au/developers/))
 5. Select your site
 6. Optionally configure the integration options
 
 ## Options
 
-Amber Express supports the following per-site options:
+Amber Express Trader supports the following per-site options:
 
 - **Site name**: Display name used for the Home Assistant device and entities
 - **Pricing mode**: Choose the price field used by sensors
@@ -93,7 +93,7 @@ There are two pricing modes available that Amber provide, AEMO and Advanced Pric
 
 - Amber's own prediction of upcoming prices, built to be more realistic than AEMO
 - Despite the Amber app displaying AEMO prices, Amber's SmartShift uses this forecast instead
-- Strongly recommended for optimizers such as [HAEO](https://haeo.io/), and the default mode in Amber Express
+- Strongly recommended for optimizers such as [HAEO](https://haeo.io/), and the default mode in Amber Express Trader
 
 ## HAEO Integration
 
@@ -101,8 +101,8 @@ The forecast sensors are designed to work seamlessly with [HAEO](https://haeo.io
 
 ```yaml
 # Example: Use in HAEO
-Import Price: sensor.amber_express_home_general_price
-Export Price: sensor.amber_express_home_feed_in_price
+Import Price: sensor.amber_express_trader_home_general_price
+Export Price: sensor.amber_express_trader_home_feed_in_price
 ```
 
 ## Smart Polling
@@ -127,7 +127,7 @@ https://github.com/user-attachments/assets/e42414fd-526f-456c-a503-3e6751baedf7
 
 ## Forecasting
 
-Amber Express includes forecast attributes for both import and feed-in channels.
+Amber Express Trader includes forecast attributes for both import and feed-in channels.
 
 - Forecast length is configurable using the **Forecast intervals** option
 - Forecast sensors update with each polling cycle and can be consumed directly by automations
@@ -191,7 +191,7 @@ The integration will (optionally) connect to Amber's WebSocket API for real-time
 
 ## Comparison
 
-| Feature           | Amber Express            | amber2mqtt                | Amber Electric     |
+| Feature           | Amber Express Trader            | amber2mqtt                | Amber Electric     |
 | ----------------- | ------------------------ | ------------------------- | ------------------ |
 | Polling           | Adaptive (learns timing) | Scheduled (you configure) | Fixed 1-minute     |
 | Update Speed      | Fastest                  | Fast                      | Slow               |

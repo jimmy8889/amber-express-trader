@@ -1,7 +1,7 @@
 {
-  "name": "Amber Express",
+  "name": "Amber Express Trader",
   "homeassistant": "2026.1.1",
-  "filename": "amber_express.zip",
+  "filename": "amber_express_trader.zip",
   "render_readme": true,
   "zip_release": true
 }

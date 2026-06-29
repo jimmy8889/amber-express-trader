@@ -44,7 +44,7 @@ jobs:
         run: |
           VERSION="${{ github.event.release.tag_name }}"
           VERSION="${VERSION#v}"
-          MANIFEST_VERSION=$(jq -r '.version' custom_components/amber_express/manifest.json)
+          MANIFEST_VERSION=$(jq -r '.version' custom_components/amber_express_trader/manifest.json)
           echo "Version: $VERSION"
           echo "manifest.json version: $MANIFEST_VERSION"
           if [[ "$VERSION" != "$MANIFEST_VERSION" ]]; then
@@ -62,8 +62,8 @@ jobs:
 
       - name: Create release package
         run: |
-          cd custom_components/amber_express
-          zip -r ../../amber_express.zip . \
+          cd custom_components/amber_express_trader
+          zip -r ../../amber_express_trader.zip . \
             --exclude "tests/" "tests/*" "*/tests/" "*/tests/*" \
             --exclude "*/__pycache__/" "*/__pycache__/*"
 
@@ -71,4 +71,4 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            amber_express.zip
+            amber_express_trader.zip

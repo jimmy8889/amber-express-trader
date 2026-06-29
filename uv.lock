@@ -168,7 +168,7 @@ wheels = [
 ]
 
 [[package]]
-name = "amber-express"
+name = "amber_express_trader"
 version = "2.0.0"
 source = { editable = "." }
 dependencies = [

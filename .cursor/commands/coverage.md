@@ -11,7 +11,7 @@ Check code coverage for the current branch and identify areas that need addition
 ### Full Coverage Report
 
 ```bash
-uv run pytest --cov=custom_components/amber_express --cov-branch --cov-report=term-missing
+uv run pytest --cov=custom_components/amber_express_trader --cov-branch --cov-report=term-missing
 ```
 
 This provides:
@@ -25,7 +25,7 @@ This provides:
 For detailed visual analysis:
 
 ```bash
-uv run pytest --cov=custom_components/amber_express --cov-branch --cov-report=html
+uv run pytest --cov=custom_components/amber_express_trader --cov-branch --cov-report=html
 ```
 
 Open `htmlcov/index.html` in a browser to see:
@@ -77,7 +77,7 @@ After adding tests:
 1. **Re-run coverage**:
 
     ```bash
-    uv run pytest --cov=custom_components/amber_express --cov-branch --cov-report=term-missing
+    uv run pytest --cov=custom_components/amber_express_trader --cov-branch --cov-report=term-missing
     ```
 
 2. **Run tests to ensure they pass**:

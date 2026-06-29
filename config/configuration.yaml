@@ -8,4 +8,4 @@ frontend:
 logger:
   default: warning
   logs:
-    custom_components.amber_express: debug
+    custom_components.amber_express_trader: debug

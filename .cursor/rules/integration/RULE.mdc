@@ -1,7 +1,7 @@
 ---
-applyTo: custom_components/amber_express/**
+applyTo: custom_components/amber_express_trader/**
 description: Home Assistant integration development standards
-globs: [custom_components/amber_express/**]
+globs: [custom_components/amber_express_trader/**]
 alwaysApply: false
 ---
 

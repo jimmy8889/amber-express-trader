@@ -31,8 +31,8 @@ Pull requests are the best way to propose changes to the codebase.
 
 ```bash
 # Clone your fork
-git clone https://github.com/hass-energy/amber-express.git
-cd amber-express
+git clone https://github.com/hass-energy/amber_express_trader.git
+cd amber_express_trader
 
 # Install Python dependencies
 uv sync
@@ -111,7 +111,7 @@ Run the test suite before submitting:
 uv run pytest
 
 # Run with coverage
-uv run pytest --cov=custom_components/amber_express --cov-report=html
+uv run pytest --cov=custom_components/amber_express_trader --cov-report=html
 
 # Run specific test file
 uv run pytest tests/test_config_flow.py

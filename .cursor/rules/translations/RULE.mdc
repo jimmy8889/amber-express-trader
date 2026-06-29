@@ -29,7 +29,7 @@ Custom integrations use `translations/en.json` (not `strings.json` like core int
   "config": {
     "step": {
       "user": {
-        "title": "Configure Amber Express",
+        "title": "Configure Amber Express Trader",
         "description": "Enter your Amber Electric API key",
         "data": {
           "api_key": "API key"

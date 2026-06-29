@@ -134,10 +134,10 @@ If a value truly needs a default, it should be explicitly defined and documented
 - Required for all public functions and methods
 - Short and concise file headers:
     ```python
-    """Amber Express coordinator for smart price polling."""
+    """Amber Express Trader coordinator for smart price polling."""
     ```
 - Method docstrings describe what, not how:
     ```python
     async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-        """Set up Amber Express from a config entry."""
+        """Set up Amber Express Trader from a config entry."""
     ```

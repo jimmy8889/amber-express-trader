@@ -1,0 +1,327 @@
+{
+  "config": {
+    "step": {
+      "name_sites": {
+        "title": "Name Your Site",
+        "description": "**Site ID:** {site_id}  \n**NMI:** {nmi}  \n**Network:** {network}  \n**Interval:** {interval}  \n**Active from:** {active_from}",
+        "data": { "site_name": "Site Name" },
+        "data_description": { "site_name": "A friendly name for this site" }
+      },
+      "reconfigure": {
+        "title": "Update API Token",
+        "description": "Enter a new API token or leave empty to keep the current one. You can generate a token at [Amber Developer Settings]({api_url}).",
+        "data": { "api_token": "New API Token" },
+        "data_description": { "api_token": "Leave empty to keep the current token" }
+      },
+      "reconfigure_name_sites": {
+        "title": "Name New Site",
+        "description": "**Site ID:** {site_id}  \n**NMI:** {nmi}  \n**Network:** {network}  \n**Interval:** {interval}  \n**Active from:** {active_from}",
+        "data": { "site_name": "Site Name" },
+        "data_description": { "site_name": "A friendly name for this site" }
+      },
+      "reconfigure_sites": {
+        "title": "Select Sites",
+        "description": "Select the sites you want to monitor. Deselecting a site will remove it from the integration.",
+        "data": { "selected_sites": "Sites" },
+        "data_description": { "selected_sites": "The Amber Electric sites to monitor" }
+      },
+      "select_sites": {
+        "title": "Select Sites",
+        "description": "Multiple sites were found. Select the sites you want to configure.",
+        "data": { "selected_sites": "Sites" },
+        "data_description": { "selected_sites": "The Amber Electric sites to monitor" }
+      },
+      "user": {
+        "title": "Amber Express Trader",
+        "description": "Enter your Amber Electric API token. You can generate one at [Amber Developer Settings]({api_url}).",
+        "data": { "api_token": "API Token" },
+        "data_description": { "api_token": "Your Amber Electric API token" }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid API token. Please check the token and try again.",
+      "no_sites": "No active sites found for this API token.",
+      "no_sites_selected": "Please select at least one site to configure.",
+      "rate_limited": "Rate limited by Amber API. Please wait a moment and try again.",
+      "unknown": "An unexpected error occurred. Please try again."
+    },
+    "abort": {
+      "already_configured": "This API token is already configured.",
+      "already_in_progress": "Configuration is already in progress. Please refresh the page and try again.",
+      "no_change": "No changes were made.",
+      "reconfigure_successful": "Configuration updated successfully."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Amber Express Trader Options",
+        "description": "Select the site to configure.",
+        "data": { "site": "Site", "title": "Hub Name" },
+        "data_description": {
+          "site": "The Amber site whose trading and context options you want to edit",
+          "title": "The display name for this integration"
+        }
+      },
+      "site_options": {
+        "title": "Configure Site",
+        "description": "**Site ID:** {site_id}  \n**NMI:** {nmi}  \n**Network:** {network}",
+        "data": {
+          "allow_battery_export": "Allow battery export",
+          "allow_grid_charge": "Allow grid charge",
+          "battery_min_reserve_kwh": "Battery minimum reserve kWh",
+          "battery_power_entity": "Battery power entity",
+          "battery_soc_entity": "Battery SOC entity",
+          "battery_usable_kwh": "Battery usable kWh",
+          "charge_price_ceiling": "Charge price ceiling ($/kWh)",
+          "confirmation_timeout": "Confirmation timeout (seconds)",
+          "demand_window_price": "Demand Window Price ($/kWh)",
+          "enable_websocket": "Enable WebSocket (Real-time updates)",
+          "export_price_floor": "Export price floor ($/kWh)",
+          "fixed_boundary_offsets": "Fixed boundary poll offsets",
+          "forecast_intervals": "Forecast intervals to fetch",
+          "grid_power_entity": "Grid power entity",
+          "house_load_entity": "House load entity",
+          "inverter_max_charge_kw": "Inverter max charge kW",
+          "inverter_max_discharge_kw": "Inverter max discharge kW",
+          "normal_export_limit_kw": "Normal export limit kW",
+          "polling_strategy": "Polling strategy",
+          "pricing_mode": "Pricing Mode",
+          "pv_energy_today_entity": "PV energy today entity",
+          "pv_forecast_remaining_today_entity": "PV forecast remaining today entity",
+          "site_name": "Site Name",
+          "solar_power_entity": "Solar power entity",
+          "battery_charge_energy_today_entity": "Battery charge energy today entity",
+          "battery_discharge_energy_today_entity": "Battery discharge energy today entity",
+          "spike_price_threshold": "Spike price threshold ($/kWh)",
+          "target_grid_buy_kwh": "Target grid buy energy (kWh/day)",
+          "zero_price_deadband": "Zero price deadband ($/kWh)",
+          "wait_for_confirmed": "Wait for confirmed prices"
+        },
+        "data_description": {
+          "allow_battery_export": "Permit battery export recommendations.",
+          "allow_grid_charge": "Permit grid charging recommendations.",
+          "battery_min_reserve_kwh": "Minimum battery reserve in kWh.",
+          "battery_power_entity": "Optional battery power entity. W values are converted to kW.",
+          "battery_soc_entity": "Optional battery state of charge percentage entity.",
+          "battery_usable_kwh": "Usable battery capacity in kWh.",
+          "charge_price_ceiling": "Import price at or below this value is considered profitable for grid charging.",
+          "confirmation_timeout": "Maximum seconds to wait for confirmed price before using estimates. Set to 0 to wait indefinitely.",
+          "demand_window_price": "Price to add to general channel during demand windows. Set high (e.g. $50) to prevent imports during demand periods.",
+          "enable_websocket": "Enable WebSocket for real-time price updates (alpha feature)",
+          "export_price_floor": "Feed-in price at or above this value is considered profitable for export.",
+          "fixed_boundary_offsets": "Comma-separated seconds after each interval boundary to poll before falling back to adaptive polling.",
+          "forecast_intervals": "How many future intervals to request from the Amber API (maps to the `next` parameter). Range: 1 to 2048. Availability may be capped by the API.",
+          "grid_power_entity": "Optional grid power entity. W values are converted to kW.",
+          "house_load_entity": "Optional house load entity. W values are converted to kW.",
+          "inverter_max_charge_kw": "Inverter maximum charge rate in kW.",
+          "inverter_max_discharge_kw": "Inverter maximum discharge rate in kW.",
+          "normal_export_limit_kw": "Normal export limit in kW.",
+          "polling_strategy": "Adaptive uses the learned CDF schedule. Fixed boundary polls only at configured boundary offsets. Hybrid polls fixed offsets first, then adaptive.",
+          "pricing_mode": "AEMO is Amber's displayed price (per_kwh). APP uses Amber's predicted price (advanced_price_predicted).",
+          "pv_energy_today_entity": "Optional entity containing PV energy generated so far today. Wh values are converted to kWh.",
+          "pv_forecast_remaining_today_entity": "Optional entity containing forecast PV energy remaining today. Wh values are converted to kWh.",
+          "site_name": "A friendly name for this site",
+          "solar_power_entity": "Optional solar power entity. W values are converted to kW.",
+          "battery_charge_energy_today_entity": "Optional entity containing battery charge energy so far today. Wh values are converted to kWh.",
+          "battery_discharge_energy_today_entity": "Optional entity containing battery discharge energy so far today. Wh values are converted to kWh.",
+          "spike_price_threshold": "Import price at or above this value is treated as a spike.",
+          "target_grid_buy_kwh": "Daily energy target to buy from the grid. The target sensor schedules this across the cheapest forecast intervals below the charge ceiling.",
+          "zero_price_deadband": "Prices within this absolute value are treated as zero.",
+          "wait_for_confirmed": "When enabled, sensors only update when a confirmed (non-estimated) price is received."
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "api_status": { "name": "API Status" },
+      "battery_power_target": { "name": "Battery Power Target" },
+      "best_charge_window": { "name": "Best Charge Window" },
+      "best_export_window": { "name": "Best Export Window" },
+      "confirmation_delay": { "name": "Confirmation Delay" },
+      "confirmation_lag": { "name": "Confirmation Lag" },
+      "controlled_load_price": { "name": "Controlled Load Price" },
+      "feed_in_price": { "name": "Feed In Price" },
+      "forecast_horizon": { "name": "Forecast Horizon" },
+      "general_price": { "name": "General Price" },
+      "next_negative_price": { "name": "Next Negative Price" },
+      "next_poll": { "name": "Next Poll" },
+      "next_spike": { "name": "Next Spike" },
+      "rate_limit_remaining": { "name": "Rate Limit Remaining" },
+      "rate_limit_reset": { "name": "Rate Limit Reset" },
+      "renewables": { "name": "Renewables" },
+      "site": { "name": "Site" },
+      "trading_action": { "name": "Trading Action" },
+      "trading_explanation": { "name": "Trading Explanation" }
+    },
+    "binary_sensor": { "demand_window": { "name": "Demand Window" }, "price_spike": { "name": "Price Spike" } },
+    "select": {
+      "pricing_mode": {
+        "name": "Pricing Mode",
+        "state": { "advanced_price_predicted": "Advanced Price Predicted", "per_kwh": "AEMO (including tariffs)" }
+      },
+      "polling_strategy": {
+        "name": "Polling Strategy",
+        "state": {
+          "adaptive": "Adaptive",
+          "fixed_boundary": "Fixed Boundary",
+          "hybrid_boundary_adaptive": "Hybrid Boundary Adaptive"
+        }
+      }
+    },
+    "number": {
+      "confirmation_timeout": { "name": "Confirmation Timeout" },
+      "forecast_intervals": { "name": "Forecast Intervals" },
+      "demand_window_price": { "name": "Demand Window Price" },
+      "zero_price_deadband": { "name": "Zero Price Deadband" },
+      "export_price_floor": { "name": "Export Price Floor" },
+      "charge_price_ceiling": { "name": "Charge Price Ceiling" },
+      "spike_price_threshold": { "name": "Spike Price Threshold" },
+      "target_grid_buy_kwh": { "name": "Target Grid Buy Energy" }
+    },
+    "text": {
+      "fixed_boundary_offsets": { "name": "Fixed Boundary Offsets" },
+      "battery_soc_entity": { "name": "Battery SOC Entity" },
+      "battery_power_entity": { "name": "Battery Power Entity" },
+      "grid_power_entity": { "name": "Grid Power Entity" },
+      "solar_power_entity": { "name": "Solar Power Entity" },
+      "house_load_entity": { "name": "House Load Entity" },
+      "pv_energy_today_entity": { "name": "PV Energy Today Entity" },
+      "pv_forecast_remaining_today_entity": { "name": "PV Forecast Remaining Today Entity" },
+      "battery_charge_energy_today_entity": { "name": "Battery Charge Energy Today Entity" },
+      "battery_discharge_energy_today_entity": { "name": "Battery Discharge Energy Today Entity" },
+      "battery_usable_kwh": { "name": "Battery Usable kWh" },
+      "battery_min_reserve_kwh": { "name": "Battery Minimum Reserve kWh" },
+      "inverter_max_charge_kw": { "name": "Inverter Max Charge kW" },
+      "inverter_max_discharge_kw": { "name": "Inverter Max Discharge kW" },
+      "normal_export_limit_kw": { "name": "Normal Export Limit kW" }
+    },
+    "switch": {
+      "enable_websocket": { "name": "Enable WebSocket" },
+      "wait_for_confirmed": { "name": "Wait For Confirmed Prices" },
+      "allow_grid_charge": { "name": "Allow Grid Charge" },
+      "allow_battery_export": { "name": "Allow Battery Export" }
+    }
+  },
+  "config_subentries": {
+    "site": {
+      "flow_title": "Site",
+      "step": {
+        "reconfigure": {
+          "title": "Configure Site",
+          "description": "**Site ID:** {site_id}  \n**NMI:** {nmi}  \n**Network:** {network}",
+          "data": {
+            "allow_battery_export": "Allow battery export",
+            "allow_grid_charge": "Allow grid charge",
+            "battery_min_reserve_kwh": "Battery minimum reserve kWh",
+            "battery_power_entity": "Battery power entity",
+            "battery_soc_entity": "Battery SOC entity",
+            "battery_usable_kwh": "Battery usable kWh",
+            "charge_price_ceiling": "Charge price ceiling ($/kWh)",
+            "confirmation_timeout": "Confirmation timeout (seconds)",
+            "demand_window_price": "Demand Window Price ($/kWh)",
+            "enable_websocket": "Enable WebSocket (Real-time updates)",
+            "export_price_floor": "Export price floor ($/kWh)",
+            "fixed_boundary_offsets": "Fixed boundary poll offsets",
+            "forecast_intervals": "Forecast intervals to fetch",
+            "grid_power_entity": "Grid power entity",
+            "house_load_entity": "House load entity",
+            "inverter_max_charge_kw": "Inverter max charge kW",
+            "inverter_max_discharge_kw": "Inverter max discharge kW",
+            "normal_export_limit_kw": "Normal export limit kW",
+            "polling_strategy": "Polling strategy",
+            "pricing_mode": "Pricing Mode",
+            "pv_energy_today_entity": "PV energy today entity",
+            "pv_forecast_remaining_today_entity": "PV forecast remaining today entity",
+            "site_name": "Site Name",
+            "solar_power_entity": "Solar power entity",
+            "battery_charge_energy_today_entity": "Battery charge energy today entity",
+            "battery_discharge_energy_today_entity": "Battery discharge energy today entity",
+            "spike_price_threshold": "Spike price threshold ($/kWh)",
+            "target_grid_buy_kwh": "Target grid buy energy (kWh/day)",
+            "zero_price_deadband": "Zero price deadband ($/kWh)",
+            "wait_for_confirmed": "Wait for confirmed prices"
+          },
+          "data_description": {
+            "allow_battery_export": "Permit battery export recommendations.",
+            "allow_grid_charge": "Permit grid charging recommendations.",
+            "battery_min_reserve_kwh": "Minimum battery reserve in kWh.",
+            "battery_power_entity": "Optional battery power entity. W values are converted to kW.",
+            "battery_soc_entity": "Optional battery state of charge percentage entity.",
+            "battery_usable_kwh": "Usable battery capacity in kWh.",
+            "charge_price_ceiling": "Import price at or below this value is considered profitable for grid charging.",
+            "confirmation_timeout": "Maximum seconds to wait for confirmed price before using estimates. Set to 0 to wait indefinitely.",
+            "demand_window_price": "Price to add to general channel during demand windows. Set high (e.g. $50) to prevent imports during demand periods.",
+            "enable_websocket": "Enable WebSocket for real-time price updates (alpha feature)",
+            "export_price_floor": "Feed-in price at or above this value is considered profitable for export.",
+            "fixed_boundary_offsets": "Comma-separated seconds after each interval boundary to poll before falling back to adaptive polling.",
+            "forecast_intervals": "How many future intervals to request from the Amber API (maps to the `next` parameter). Range: 1 to 2048. Availability may be capped by the API.",
+            "grid_power_entity": "Optional grid power entity. W values are converted to kW.",
+            "house_load_entity": "Optional house load entity. W values are converted to kW.",
+            "inverter_max_charge_kw": "Inverter maximum charge rate in kW.",
+            "inverter_max_discharge_kw": "Inverter maximum discharge rate in kW.",
+            "normal_export_limit_kw": "Normal export limit in kW.",
+            "polling_strategy": "Adaptive uses the learned CDF schedule. Fixed boundary polls only at configured boundary offsets. Hybrid polls fixed offsets first, then adaptive.",
+            "pricing_mode": "AEMO is Amber's displayed price (per_kwh). APP uses Amber's predicted price (advanced_price_predicted).",
+            "pv_energy_today_entity": "Optional entity containing PV energy generated so far today. Wh values are converted to kWh.",
+            "pv_forecast_remaining_today_entity": "Optional entity containing forecast PV energy remaining today. Wh values are converted to kWh.",
+            "site_name": "A friendly name for this site",
+            "solar_power_entity": "Optional solar power entity. W values are converted to kW.",
+            "battery_charge_energy_today_entity": "Optional entity containing battery charge energy so far today. Wh values are converted to kWh.",
+            "battery_discharge_energy_today_entity": "Optional entity containing battery discharge energy so far today. Wh values are converted to kWh.",
+            "spike_price_threshold": "Import price at or above this value is treated as a spike.",
+            "target_grid_buy_kwh": "Daily energy target to buy from the grid. The target sensor schedules this across the cheapest forecast intervals below the charge ceiling.",
+            "zero_price_deadband": "Prices within this absolute value are treated as zero.",
+            "wait_for_confirmed": "When enabled, sensors only update when a confirmed (non-estimated) price is received."
+          }
+        },
+        "user": {
+          "title": "Add Site",
+          "description": "Select a site to add and give it a name.",
+          "data": { "site_id": "Site", "site_name": "Site Name" },
+          "data_description": {
+            "site_id": "The Amber Electric site to add",
+            "site_name": "A friendly name for this site"
+          }
+        }
+      },
+      "abort": {
+        "invalid_auth": "Invalid API token.",
+        "no_sites": "No sites found.",
+        "no_sites_available": "No additional sites are available to add.",
+        "rate_limited": "Rate limited by Amber API. Please try again later.",
+        "reconfigure_successful": "Site configuration updated successfully.",
+        "unknown": "An unexpected error occurred.",
+        "use_reconfigure": "To add or remove sites, use the Reconfigure option on the main Amber Electric entry."
+      },
+      "entry_type": "Site",
+      "initiate_flow": { "reconfigure": "Site", "user": "Site" }
+    }
+  },
+  "issues": {
+    "legacy_pricing_mode_all": {
+      "title": "Migrate removed pricing mode",
+      "fix_flow": {
+        "step": {
+          "confirm": {
+            "title": "Migrate pricing mode for {site_name}",
+            "description": "The \"Both\" pricing mode has been removed. This repair will update the site to APP pricing mode (`advanced_price_predicted`)."
+          }
+        }
+      }
+    }
+  },
+  "selector": {
+    "polling_strategy": {
+      "options": {
+        "adaptive": "Adaptive",
+        "fixed_boundary": "Fixed boundary",
+        "hybrid_boundary_adaptive": "Hybrid boundary adaptive"
+      }
+    },
+    "pricing_mode": {
+      "options": { "advanced_price_predicted": "Advanced Price Predicted", "per_kwh": "AEMO (including tariffs)" }
+    }
+  }
+}

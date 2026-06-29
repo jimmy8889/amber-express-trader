@@ -180,7 +180,7 @@ jobs:
         run: uv sync --locked --all-extras --dev
 
       - name: Run Tests
-        run: uv run pytest --cov=custom_components/amber_express --cov-branch --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
+        run: uv run pytest --cov=custom_components/amber_express_trader --cov-branch --cov-report=xml --junitxml=junit.xml -o junit_family=legacy
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name != 'release' && !cancelled() }}
@@ -218,7 +218,7 @@ jobs:
       - name: Check version consistency
         run: |
           PYPROJECT=$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['version'])")
-          MANIFEST=$(jq -r '.version' custom_components/amber_express/manifest.json)
+          MANIFEST=$(jq -r '.version' custom_components/amber_express_trader/manifest.json)
           echo "pyproject.toml=$PYPROJECT manifest.json=$MANIFEST"
           [[ "$PYPROJECT" == "$MANIFEST" ]]
 

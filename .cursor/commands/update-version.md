@@ -7,7 +7,7 @@ Update the project version number to `$VERSION`.
    version = "$VERSION"
    ```
 
-2. Update `custom_components/amber_express/manifest.json`:
+2. Update `custom_components/amber_express_trader/manifest.json`:
    ```json
    "version": "$VERSION"
    ```

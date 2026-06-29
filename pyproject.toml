@@ -1,5 +1,5 @@
 [project]
-name = "amber-express"
+name = "amber_express_trader"
 version = "2.0.0"
 description = "Home Assistant integration for Amber Electric with smart polling and WebSocket support"
 readme = "README.md"
@@ -53,12 +53,12 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["amber_express"]
+known-first-party = ["amber_express_trader"]
 force-sort-within-sections = true
 split-on-trailing-comma = false
 
 [tool.ruff.lint.per-file-ignores]
-"custom_components/amber_express/__init__.py" = [
+"custom_components/amber_express_trader/__init__.py" = [
     'E402',    # Warning filter for amberelectric/pydantic must run before imports
 ]
 "**/test_*.py" = [
@@ -122,7 +122,7 @@ reportPrivateUsage = false                  # Allow private access in colocated 
 
 [tool.pytest.ini_options]
 timeout = 5
-testpaths = ["custom_components/amber_express"]
+testpaths = ["custom_components/amber_express_trader"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]

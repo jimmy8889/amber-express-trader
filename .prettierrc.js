@@ -16,7 +16,7 @@ module.exports = {
   overrides: [
     {
       // Home Assistant manifest.json - domain and name first, then alphabetical
-      files: "custom_components/amber_express/manifest.json",
+      files: "custom_components/amber_express_trader/manifest.json",
       options: {
         jsonSortOrder: JSON.stringify({
           domain: null,
@@ -39,7 +39,7 @@ module.exports = {
     },
     {
       // Home Assistant translation files - semantic ordering for config flows
-      files: "custom_components/amber_express/translations/*.json",
+      files: "custom_components/amber_express_trader/translations/*.json",
       options: {
         objectWrap: "collapse",
         jsonSortOrder: JSON.stringify({

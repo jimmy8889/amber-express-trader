@@ -1,5 +1,5 @@
 {
-  "name": "amber-express",
+  "name": "amber_express_trader",
   "private": true,
   "dependencies": {
     "prettier-plugin-sort-json": "^4.1.1"

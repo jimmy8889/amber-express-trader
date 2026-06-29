@@ -1,11 +1,11 @@
 ---
-description: Amber Express project context and agent behavioral rules - always applied
+description: Amber Express Trader project context and agent behavioral rules - always applied
 alwaysApply: true
 ---
 
-# Amber Express Project Context
+# Amber Express Trader Project Context
 
-This repository contains **Amber Express** - a Python 3.13+ Home Assistant custom component for real-time Amber Electric price monitoring with smart polling and WebSocket support.
+This repository contains **Amber Express Trader** - a Python 3.13+ Home Assistant custom component for real-time Amber Electric price monitoring with smart polling and WebSocket support.
 
 ## Project overview
 
@@ -22,7 +22,7 @@ The integration provides real-time electricity price monitoring from Amber Elect
 ### Project structure
 
 ```
-custom_components/amber_express/
+custom_components/amber_express_trader/
 ├── coordinator.py          # Smart polling coordinator
 ├── websocket.py            # WebSocket client
 ├── sensor.py               # Sensor entities
@@ -117,6 +117,6 @@ Focus review comments on:
 The version number must be consistent across:
 
 - `pyproject.toml` (`version = "x.y.z"`)
-- `custom_components/amber_express/manifest.json` (`"version": "x.y.z"`)
+- `custom_components/amber_express_trader/manifest.json` (`"version": "x.y.z"`)
 
 When updating version numbers, update both files together.

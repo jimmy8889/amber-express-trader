@@ -1,15 +1,15 @@
 ---
-description: Amber Express project context and agent behavioral rules
+description: Amber Express Trader project context and agent behavioral rules
 alwaysApply: true
 ---
 
 # GitHub Copilot Instructions
 
-This repository contains **Amber Express** - a Python 3.13+ Home Assistant custom component for real-time Amber Electric pricing with smart polling and WebSocket support.
+This repository contains **Amber Express Trader** - a Python 3.13+ Home Assistant custom component for real-time Amber Electric pricing with smart polling and WebSocket support.
 
 ## Project overview
 
-Amber Express provides fast, real-time electricity pricing for Amber Electric customers in Australia. Key features:
+Amber Express Trader provides fast, real-time electricity pricing for Amber Electric customers in Australia. Key features:
 
 - **Smart polling**: Cron-based polling inspired by amber2mqtt - polls frequently at interval start, stops once confirmed price received
 - **WebSocket redundancy**: Optional connection to Amber's WebSocket API with automatic fallback to polling
@@ -26,7 +26,7 @@ Amber Express provides fast, real-time electricity pricing for Amber Electric cu
 ### Project structure
 
 ```
-custom_components/amber_express/
+custom_components/amber_express_trader/
 ├── __init__.py           # Integration setup
 ├── config_flow.py        # Config and options flows
 ├── const.py              # Constants and defaults
@@ -94,7 +94,7 @@ Rely on linting tools (Ruff and Pyright) for issues they detect. Focus review on
 The version number must be consistent across:
 
 - `pyproject.toml` (`version = "x.y.z"`)
-- `custom_components/amber_express/manifest.json` (`"version": "x.y.z"`)
+- `custom_components/amber_express_trader/manifest.json` (`"version": "x.y.z"`)
 
 When updating version numbers, update both files together.
 
